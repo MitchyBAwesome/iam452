@@ -1,6 +1,8 @@
 name: cfn-policy-validator-workflow
 
-on: push
+on:
+  pull_request:
+    types: [opened, review_requested]
 
 permissions:
   id-token: write
@@ -34,7 +36,20 @@ jobs:
         shell: bash
   
       - name: check-access-not-granted
-        run: cfn-policy-validator check-access-not-granted --template-path ./*.yaml --actions ${{ steps.getCriticalActions.outputs.actionsLst }} --region us-east-1
+        id: checkAccessNotGranted
+        run: |
+          echo "output=$(cfn-policy-validator check-access-not-granted --template-path ./*.yaml --actions ${{ steps.getCriticalActions.outputs.actionsLst }} --region us-east-1" >> GITHUB_OUTPUT
+
+      - name: post-results-to-comment
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '${{ steps.getCriticalActions.outputs.output }}'
+            })    
 
       - name: Deploy to AWS CloudFormation
         uses: aws-actions/aws-cloudformation-github-deploy@v1
