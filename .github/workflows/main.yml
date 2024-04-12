@@ -38,7 +38,7 @@ jobs:
       - name: check-access-not-granted
         id: checkAccessNotGranted
         run: |
-          echo "output=$(cfn-policy-validator check-access-not-granted --template-path ./*.yaml --actions ${{ steps.getCriticalActions.outputs.actionsLst }} --region us-east-1" >> GITHUB_OUTPUT
+          echo "output=$(cfn-policy-validator check-access-not-granted --template-path ./*.yaml --actions ${{ steps.getCriticalActions.outputs.actionsLst }} --region us-east-1") >> GITHUB_OUTPUT
         shell: bash
       - name: post-results-to-comment
         uses: actions/github-script@v6
