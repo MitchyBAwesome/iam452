@@ -26,3 +26,6 @@ jobs:
 
       - name: Validate templates
         run: cfn-policy-validator validate --template-path ./*.yaml --region us-east-1
+
+      - name: check-access-not-granted
+        run: cfn-policy-validator check-access-not-granted --template-path ./*.yaml --actions ${{ secrets.CRITICAL_ACTIONS }} --region us-east-1
