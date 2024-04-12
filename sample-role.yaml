@@ -9,7 +9,7 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              AWS: "*"
+              AWS: "710487389845"
             Action: ["sts:AssumeRole"]
       Path: /      
       Policies:
@@ -21,6 +21,7 @@ Resources:
                 Effect: Allow
                 Action:
                 - 'ec2:RunInstances'
+                - 'dynamodb:DeleteTable'
                 - 'lambda:CreateFunction'
                 - 'lambda:InvokeFunction'
                 - 'dynamodb:Scan'
