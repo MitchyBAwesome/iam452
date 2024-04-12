@@ -29,3 +29,9 @@ jobs:
 
       - name: check-access-not-granted
         run: cfn-policy-validator check-access-not-granted --template-path ./*.yaml --actions ${{ secrets.CRITICAL_ACTIONS }} --region us-east-1
+
+      - name: Deploy to AWS CloudFormation
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: MyStack
+          template: sample-role.yaml
