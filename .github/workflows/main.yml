@@ -3,16 +3,19 @@ name: cfn-policy-validator-workflow
 on:
   pull_request:
     types: [opened, review_requested]
+  push:
+    branches:
+       - 'main'
 
 permissions:
   id-token: write
   contents: read
+  issues: write
 
 jobs: 
   cfn-iam-policy-validation: 
     name: iam-policy-validation
     runs-on: ubuntu-latest
-    permissions: write-all
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -50,8 +53,14 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: '${{ steps.getCriticalActions.outputs.output }}'
-            })    
+            }) 
 
+  cfn-template-deploy:
+    if: github.branch == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: Deploy to AWS CloudFormation
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
