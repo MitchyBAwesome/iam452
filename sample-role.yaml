@@ -26,7 +26,6 @@ Resources:
                 - 'dynamodb:Query'
                 - 'dynamodb:UpdateItem'
                 - 'dynamodb:GetItem'
-                - 'dynamodb:DeleteTable'  
                 Resource: '*'
               - Effect: Allow
                 Action:

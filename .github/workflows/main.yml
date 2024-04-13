@@ -16,11 +16,14 @@ jobs:
   cfn-iam-policy-validation: 
     name: iam-policy-validation
     runs-on: ubuntu-latest
+    permissions: write-all
     steps:
       - name: Checkout code
+        id: checkOut
         uses: actions/checkout@v4
 
       - name: Configure AWS Credentials
+        id: configureCreds
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.OIDC_IAM_ROLE }}
@@ -28,10 +31,13 @@ jobs:
           role-session-name: GitHubSessionName
         
       - name: Install cfn-policy-validator
+        id: installCfnVal
         run: pip install cfn-policy-validator
 
       - name: Validate templates
-        run: cfn-policy-validator validate --template-path ./*.yaml --region us-east-1
+        id: validateTemplates
+        run: |
+          echo "result=$(cfn-policy-validator validate --template-path ./*.yaml --region us-east-1 -)" >> $GITHUB_OUTPUT
 
       - name: Fetch critical actions from s3
         id: getCriticalActions
@@ -41,7 +47,8 @@ jobs:
   
       - name: check-access-not-granted
         id: checkAccessNotGranted
-        run: cfn-policy-validator check-access-not-granted --template-path ./*.yaml --actions ${{ steps.getCriticalActions.outputs.actionsLst }} --region us-east-1 >> GITHUB_OUTPUT
+        run: |
+          echo "result=$(cfn-policy-validator check-access-not-granted --template-path ./*.yaml --actions ${{ steps.getCriticalActions.outputs.actionsLst }} --region us-east-1 -)" >> GITHUB_OUTPUT
         shell: bash
 
       - name: post-results-to-comment
@@ -49,11 +56,11 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            github.rest.issues.createComment({  
+            github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '${{ steps.checkAccessNotGranted.outputs }}'
+              body: '${{ steps.validateTemplates.outputs.result }} \n ${{ steps.checkAccessNotGranted.outputs.result }} '
             }) 
 
   cfn-template-deploy:
