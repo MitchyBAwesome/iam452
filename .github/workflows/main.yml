@@ -45,8 +45,8 @@ jobs:
               _jq() {
               echo ${row} | jq -r ${1}
               }
-            echo "message=$(_jq '.message')" >> $GITHUB_OUTPUT;fi 
-          done
+            echo "message=$(_jq '.message')" >> $GITHUB_OUTPUT
+          done;fi
         shell: bash
 
       - name: Fetch critical actions from s3
