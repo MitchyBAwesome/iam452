@@ -37,6 +37,7 @@ jobs:
       - name: Validate templates
         id: validateTemplates
         run: |
+          set +e
           result=$(cfn-policy-validator validate --template-path ./*.yaml --region us-east-1)
           blocking=$(echo $result | jq '.BlockingFindings[]')
           if [ "$blocking" ]; then echo "result=$blocking" >> $GITHUB_OUTPUT;fi
@@ -51,6 +52,7 @@ jobs:
       - name: check-access-not-granted
         id: checkAccessNotGranted
         run: |
+          set +e
           result=$(cfn-policy-validator check-access-not-granted --template-path ./*.yaml --actions ${{ steps.getCriticalActions.outputs.actionsLst }} --region us-east-1)
           blocking=$(echo $result | jq '.BlockingFindings[]')
           if [ "$blocking" ]; then echo "result=$blocking" >> $GITHUB_OUTPUT;fi
