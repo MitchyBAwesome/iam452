@@ -40,7 +40,13 @@ jobs:
           set +e
           result=$(cfn-policy-validator validate --template-path ./*.yaml --region us-east-1)
           blocking=$(echo $result | jq '.BlockingFindings[]')
-          if [ "$blocking" ]; then echo "result=$blocking" >> $GITHUB_OUTPUT;fi
+          if [ "$blocking" ]; then 
+              for row in $(echo "${blocking}" | jq -r '.[]'); do
+              _jq() {
+              echo ${row} | jq -r ${1}
+              }
+            echo "message=$(_jq '.message')" >> $GITHUB_OUTPUT;fi 
+          done
         shell: bash
 
       - name: Fetch critical actions from s3
