@@ -45,7 +45,7 @@ jobs:
         shell: bash
 
       - name: post-results-to-comment
-        if: success() || failure()
+        if: success() || failure() && github.event_name == 'pull_request'
         uses: actions/github-script@v6
         with:
           script: |
