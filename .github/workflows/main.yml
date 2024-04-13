@@ -37,7 +37,10 @@ jobs:
       - name: Validate templates
         id: validateTemplates
         run: |
-          echo "result=$(cfn-policy-validator validate --template-path ./*.yaml --region us-east-1)" >> $GITHUB_OUTPUT
+          result=$(cfn-policy-validator validate --template-path ./*.yaml --region us-east-1)
+          blocking=$(echo $result | jq '.BlockingFindings[]')
+          if [ "$blocking" ]; then echo "result=$blocking" >> $GITHUB_OUTPUT;fi
+        shell: bash
 
       - name: Fetch critical actions from s3
         id: getCriticalActions
@@ -48,7 +51,9 @@ jobs:
       - name: check-access-not-granted
         id: checkAccessNotGranted
         run: |
-          echo "result=$(cfn-policy-validator check-access-not-granted --template-path ./*.yaml --actions ${{ steps.getCriticalActions.outputs.actionsLst }} --region us-east-1)" >> GITHUB_OUTPUT
+          result=$(cfn-policy-validator check-access-not-granted --template-path ./*.yaml --actions ${{ steps.getCriticalActions.outputs.actionsLst }} --region us-east-1)
+          blocking=$(echo $result | jq '.BlockingFindings[]')
+          if [ "$blocking" ]; then echo "result=$blocking" >> $GITHUB_OUTPUT;fi
         shell: bash
 
       - name: post-results-to-comment
