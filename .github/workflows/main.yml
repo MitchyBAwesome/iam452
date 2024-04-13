@@ -16,6 +16,7 @@ jobs:
   cfn-iam-policy-validation: 
     name: iam-policy-validation
     runs-on: ubuntu-latest
+    permissions: write-all
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
