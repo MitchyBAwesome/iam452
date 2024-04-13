@@ -41,10 +41,11 @@ jobs:
   
       - name: check-access-not-granted
         id: checkAccessNotGranted
-        run: |
-          echo "output=$(cfn-policy-validator check-access-not-granted --template-path ./*.yaml --actions ${{ steps.getCriticalActions.outputs.actionsLst }} --region us-east-1" >> GITHUB_OUTPUT
+        run: cfn-policy-validator check-access-not-granted --template-path ./*.yaml --actions ${{ steps.getCriticalActions.outputs.actionsLst }} --region us-east-1 >> GITHUB_OUTPUT
         shell: bash
+
       - name: post-results-to-comment
+        if: success() || failure()
         uses: actions/github-script@v6
         with:
           script: |
@@ -52,7 +53,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '${{ steps.getCriticalActions.outputs.output }}'
+              body: '${{ steps.checkAccessNotGranted.outputs.output }}'
             }) 
 
   cfn-template-deploy:
