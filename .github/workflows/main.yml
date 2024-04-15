@@ -38,6 +38,9 @@ jobs:
           policy-check-type: 'VALIDATE_POLICY'
           template-path: './sample-role.yaml'
           region: us-east-1
+      
+      - name: Print the result for ValidatePolicy
+        run: echo "${{ steps.run-aws-validate-policy.outputs.result }}"
 
       - name: Fetch critical actions from s3
         id: getCriticalActions
