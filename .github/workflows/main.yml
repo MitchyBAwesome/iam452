@@ -40,6 +40,7 @@ jobs:
           region: us-east-1
       
       - name: Print the result for ValidatePolicy
+        if: success() || failure()
         run: echo "${{ steps.run-aws-validate-policy.outputs.result }}"
 
       - name: Fetch critical actions from s3
