@@ -29,25 +29,14 @@ jobs:
           role-to-assume: ${{ secrets.OIDC_IAM_ROLE }}
           aws-region: us-east-1
           role-session-name: GitHubSessionName
-        
-      - name: Install cfn-policy-validator
-        id: installCfnVal
-        run: pip install cfn-policy-validator
 
-      - name: Validate templates
-        id: validateTemplates
-        run: |
-          set +e
-          result=$(cfn-policy-validator validate --template-path ./*.yaml --region us-east-1)
-          blocking=$(echo $result | jq '.BlockingFindings[]')
-          if [ "$blocking" ]; then 
-              for row in $(echo "${blocking}" | jq -r '.[]'); do
-              _jq() {
-              echo ${row} | jq -r ${1}
-              }
-            echo "message=$(_jq '.message')" >> $GITHUB_OUTPUT
-          done;fi
-        shell: bash
+      - name: Run AWS AccessAnalyzer ValidatePolicy check
+        id: run-aws-validate-policy
+        uses: aws-actions/cloudformation-aws-iam-policy-validator@v1
+        with:
+          policy-check-type: 'VALIDATE_POLICY'
+          template-path: ./*.yaml 
+          region: us-east-1
 
       - name: Fetch critical actions from s3
         id: getCriticalActions
@@ -73,7 +62,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '${{ steps.validateTemplates.outputs.result }} \n ${{ steps.checkAccessNotGranted.outputs.result }} '
+              body: "${{ steps.run-aws-validate-policy.outputs.result }}"
             }) 
 
   cfn-template-deploy:
