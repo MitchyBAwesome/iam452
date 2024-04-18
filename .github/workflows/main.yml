@@ -49,6 +49,12 @@ jobs:
           echo "actionsLst=$(aws s3 cp ${{ secrets.CRITICAL_ACTIONS }} -)"  >> $GITHUB_OUTPUT
         shell: bash
         
+      - name: Fetch reference policy from s3
+        id: getReferencePolicy
+        run: |
+          aws s3 cp ${{ secrets.CRITICAL_ACTIONS }} ./reference-identity-policy.json
+        shell: bash
+        
       - name: Run AWS AccessAnalyzer CheckAccessNotGranted check
         id: run-aws-check-access-not-granted
         uses: aws-actions/cloudformation-aws-iam-policy-validator@v1.0.0
@@ -64,7 +70,7 @@ jobs:
         with:
           policy-check-type: 'CHECK_NO_NEW_ACCESS'
           template-path: './sample-role.yaml'
-          reference-policy: ${{ secrets.REFERENCE_IDENTITY_POLICY }}
+          reference-policy: './reference-identity-policy.json'
           reference-policy-type: "IDENTITY"
           region: us-east-1
 
