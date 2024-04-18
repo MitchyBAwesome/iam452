@@ -48,16 +48,7 @@ jobs:
         run: |
           echo "actionsLst=$(aws s3 cp ${{ secrets.CRITICAL_ACTIONS }} -)"  >> $GITHUB_OUTPUT
         shell: bash
-  
-      # - name: check-access-not-granted
-      #   id: checkAccessNotGranted
-      #   run: |
-      #     set +e
-      #     result=$(cfn-policy-validator check-access-not-granted --template-path ./*.yaml --actions ${{ steps.getCriticalActions.outputs.actionsLst }} --region us-east-1)
-      #     blocking=$(echo $result | jq '.BlockingFindings[]')
-      #     if [ "$blocking" ]; then echo "result=$blocking" >> $GITHUB_OUTPUT;fi
-      #   shell: bash
-
+        
       - name: Run AWS AccessAnalyzer CheckAccessNotGranted check
         id: run-aws-check-access-not-granted
         uses: aws-actions/cloudformation-aws-iam-policy-validator@v1.0.0
@@ -66,6 +57,16 @@ jobs:
           template-path: './sample-role.yaml'
           actions: ${{ steps.getCriticalActions.outputs.actionsLst }}
           region: us-east-1
+          
+      - name: Run AWS AccessAnalyzer CheckNoNewAccess check
+         id: run-aws-check-no-new-access
+         uses: aws-actions/cloudformation-aws-iam-policy-validator@v1.0.0
+         with:
+           policy-check-type: 'CHECK_NO_NEW_ACCESS'
+           template-path: './sample-role.yaml'
+           reference-policy: ${{ secrets.REFERENCE_IDENTITY_POLICY }}
+           reference-policy-type: "IDENTITY"
+           region: us-east-1
 
       - name: post-results-to-comment
         if: success() || failure() && github.event_name == 'pull_request'
@@ -76,7 +77,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: "${{ steps.run-aws-validate-policy.outputs.result }}"
+              body: '*${{ steps.run-aws-validate-policy.outputs.result }}'
             }) 
 
   cfn-template-deploy:
