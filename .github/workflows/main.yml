@@ -59,14 +59,14 @@ jobs:
           region: us-east-1
           
       - name: Run AWS AccessAnalyzer CheckNoNewAccess check
-         id: run-aws-check-no-new-access
-         uses: aws-actions/cloudformation-aws-iam-policy-validator@v1.0.0
-         with:
-           policy-check-type: 'CHECK_NO_NEW_ACCESS'
-           template-path: './sample-role.yaml'
-           reference-policy: ${{ secrets.REFERENCE_IDENTITY_POLICY }}
-           reference-policy-type: "IDENTITY"
-           region: us-east-1
+        id: run-aws-check-no-new-access
+        uses: aws-actions/cloudformation-aws-iam-policy-validator@v1.0.0
+        with:
+          policy-check-type: 'CHECK_NO_NEW_ACCESS'
+          template-path: './sample-role.yaml'
+          reference-policy: ${{ secrets.REFERENCE_IDENTITY_POLICY }}
+          reference-policy-type: "IDENTITY"
+          region: us-east-1
 
       - name: post-results-to-comment
         if: success() || failure() && github.event_name == 'pull_request'
