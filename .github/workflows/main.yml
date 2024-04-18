@@ -75,7 +75,7 @@ jobs:
           region: us-east-1
 
       - name: post-results-to-comment
-        if: success() || failure() && github.event_name == 'pull_request'
+        if: success() && github.event_name == 'pull_request' || failure() && github.event_name == 'pull_request'
         uses: actions/github-script@v6
         with:
           script: |
