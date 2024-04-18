@@ -52,7 +52,7 @@ jobs:
       - name: Fetch reference policy from s3
         id: getReferencePolicy
         run: |
-          aws s3 cp ${{ secrets.CRITICAL_ACTIONS }} ./reference-identity-policy.json
+          aws s3 cp ${{ secrets.REFERENCE_IDENTITY_POLICY }} ./reference-identity-policy.json
         shell: bash
         
       - name: Run AWS AccessAnalyzer CheckAccessNotGranted check
